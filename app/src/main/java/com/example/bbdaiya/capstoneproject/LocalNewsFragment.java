@@ -122,7 +122,7 @@ public class LocalNewsFragment extends Fragment implements
         if (!enabled) {
             Log.v(LOG, "location");
             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-            startActivity(intent);
+            startActivityForResult(intent, 1);
         }
         if (ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
@@ -135,9 +135,17 @@ public class LocalNewsFragment extends Fragment implements
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.v(LOG, "result");
         getCountry();
+    }
+
+    @Override
+    public void onResume() {
+        getCountry();
+        super.onResume();
+
     }
 
     @Override
@@ -193,12 +201,12 @@ public class LocalNewsFragment extends Fragment implements
     }
     @Override
     public void onConnectionSuspended(int i) {
-
+        Log.v(LOG, "Connection suspended");
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
+        Log.v(LOG, "connection failed");
     }
 
     @Override

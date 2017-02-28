@@ -2,7 +2,6 @@ package com.example.bbdaiya.capstoneproject.UI;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,35 +11,36 @@ import android.widget.TextView;
 
 import com.example.bbdaiya.capstoneproject.ArticleList;
 import com.example.bbdaiya.capstoneproject.R;
+import com.example.bbdaiya.capstoneproject.Util.Article;
 import com.example.bbdaiya.capstoneproject.Util.NewsSource;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
 /**
- * Created by bbdaiya on 21-Feb-17.
+ * Created by bbdaiya on 28-Feb-17.
  */
 
-public class NewsSourceCardAdapter extends RecyclerView.Adapter<NewsSourceCardAdapter.MyViewHolder> implements View.OnClickListener{
+public class ArticleListCardAdapter extends RecyclerView.Adapter<ArticleListCardAdapter.MyViewHolder> {
     private Context mContext;
-    private List<NewsSource> list;
-    public NewsSourceCardAdapter(Context mContext, List<NewsSource> list) {
+    private List<Article> list;
+    public ArticleListCardAdapter(Context mContext, List<Article> list) {
         this.mContext = mContext;
         this.list = list;
     }
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.news_source_card, parent, false);
+                .inflate(R.layout.article_list_card, parent, false);
 
-        return new MyViewHolder(itemView);
+        return new ArticleListCardAdapter.MyViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        holder.cardView.setOnClickListener(this);
-        holder.news_source.setText(list.get(position).getName());
-        Picasso.with(mContext).load(list.get(position).getLogo_url()).into(holder.logo);
+        holder.title.setText(list.get(position).getTitle());
+        Picasso.with(mContext).load(list.get(position).getUrlToImage()).into(holder.image);
+
     }
 
     @Override
@@ -49,20 +49,14 @@ public class NewsSourceCardAdapter extends RecyclerView.Adapter<NewsSourceCardAd
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder{
-        public CardView cardView;
-        public TextView news_source;
-        public ImageView logo;
+        public TextView title;
+        public ImageView image;
         public MyViewHolder(View itemView) {
             super(itemView);
-            cardView = (CardView)itemView.findViewById(R.id.card_view);
-            news_source = (TextView)itemView.findViewById(R.id.news_source);
-            logo = (ImageView)itemView.findViewById(R.id.news_source_logo);
+            title = (TextView)itemView.findViewById(R.id.news_source);
+            image = (ImageView)itemView.findViewById(R.id.news_source_logo);
 
         }
-    }
-    @Override
-    public void onClick(View v) {
-        Intent intent = new Intent(v.getContext(), ArticleList.class);
-        v.getContext().startActivity(intent);
+
     }
 }
