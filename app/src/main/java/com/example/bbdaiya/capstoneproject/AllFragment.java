@@ -2,17 +2,32 @@ package com.example.bbdaiya.capstoneproject;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.bbdaiya.capstoneproject.UI.NewsSourceCardAdapter;
+import com.example.bbdaiya.capstoneproject.Util.NewsSource;
+import com.example.bbdaiya.capstoneproject.Util.Utils;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,19 +93,13 @@ public class AllFragment extends Fragment {
         View rootview = inflater.inflate(R.layout.fragment_all, container, false);
         //Recycler View
         recyclerView = (RecyclerView) rootview.findViewById(R.id.recycler_view_all);
+        ArrayList<NewsSource> newsSources = new ArrayList<>();
 
-        list = new ArrayList<>();
-        list.add("a");
-        list.add("b");
-        list.add("c");
-        list.add("d");
-        list.add("e");
-        adapter = new NewsSourceCardAdapter(getActivity(), list);
-
+        FetchNewsSource fetchNewsSource = new FetchNewsSource(getContext());
+        fetchNewsSource.execute();
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 2);
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setAdapter(adapter);
         return rootview;
     }
 
@@ -107,6 +116,90 @@ public class AllFragment extends Fragment {
         super.onDetach();
     }
 
+    /*
+    *
+    *
+    * Class for fetching news sources
+    *
+    *
+     */
+    public class FetchNewsSource extends AsyncTask<Void, Void, ArrayList<NewsSource>> {
+        final String LOG = FetchNewsSource.class.getSimpleName();
+        private NewsSourceCardAdapter adapter;
+        private Context mContext;
 
+
+        public FetchNewsSource(Context mContext) {
+            this.mContext = mContext;
+        }
+
+        @Override
+        protected ArrayList<NewsSource> doInBackground(Void... params) {
+
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            String newssourcejson = null;
+
+            try{
+                final String SOURCE_BASE_URL = "https://newsapi.org/v1/sources?language=en";
+                URL url = null;
+                try{
+                    url = new URL(SOURCE_BASE_URL);
+                    Log.v(LOG, url.toString());
+                }
+                catch(MalformedURLException e){
+                    e.printStackTrace();
+                }
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+                InputStream is = urlConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+                if(is==null){
+                    return null;
+                }
+
+                reader = new BufferedReader(new InputStreamReader(is));
+                String line;
+                while((line=reader.readLine())!=null){
+                    buffer.append(line+"\n");           //for making debugging easy we add newline
+                }
+                if(buffer.length()==0){
+                    //Stream is empty
+                    return null;
+                }
+
+                newssourcejson = buffer.toString();
+            }
+            catch (IOException e){
+                e.printStackTrace();
+            }finally {
+                if(urlConnection!=null){
+                    urlConnection.disconnect();
+                }
+                if(reader!=null){
+                    try {
+                        reader.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            try {
+                return Utils.getSourceData(newssourcejson);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+
+        @Override
+        protected void onPostExecute(ArrayList<NewsSource> newsSources) {
+            adapter = new NewsSourceCardAdapter(getContext(), newsSources);
+            recyclerView.setAdapter(adapter);
+            super.onPostExecute(newsSources);
+        }
+    }
 
 }

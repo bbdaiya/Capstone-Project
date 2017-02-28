@@ -9,6 +9,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.bbdaiya.capstoneproject.R;
+import com.example.bbdaiya.capstoneproject.Util.NewsSource;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -18,8 +20,8 @@ import java.util.List;
 
 public class NewsSourceCardAdapter extends RecyclerView.Adapter<NewsSourceCardAdapter.MyViewHolder>{
     private Context mContext;
-    private List<String> list;
-    public NewsSourceCardAdapter(Context mContext, List<String> list) {
+    private List<NewsSource> list;
+    public NewsSourceCardAdapter(Context mContext, List<NewsSource> list) {
         this.mContext = mContext;
         this.list = list;
     }
@@ -33,7 +35,8 @@ public class NewsSourceCardAdapter extends RecyclerView.Adapter<NewsSourceCardAd
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        holder.news_source.setText(list.get(position));
+        holder.news_source.setText(list.get(position).getName());
+        Picasso.with(mContext).load(list.get(position).getLogo_url()).into(holder.logo);
     }
 
     @Override
