@@ -10,9 +10,17 @@
 
     <dimen name="item_offset">10dp</dimen>
     <dimen name="card_image_height">160dp</dimen>
-    <dimen name="card_margin">5dp</dimen>
-    <dimen name="card_text_size">16dp</dimen>
+    <dimen name="card_margin">2dp</dimen>
+    <dimen name="card_text_size">20dp</dimen>
     <dimen name="card_elevation">2dp</dimen>
-    <dimen name="fab_margin">16dp</dimen>
 
+    <dimen name="article_image_height">90dp</dimen>
+    <dimen name="article_list_text_size">18dp</dimen>
+    <dimen name="app_bar_height">300dp</dimen>
+    <dimen name="text_margin">2dp</dimen>
+    <dimen name="text_left_margin">4dp</dimen>
+
+    <dimen name="detail_title_text_size">25sp</dimen>
+    <dimen name="detail_body_text_size">18sp</dimen>
+    <item name="detail_body_line_spacing_multiplier" format="float" type="fraction">1.25</item>
 </resources>

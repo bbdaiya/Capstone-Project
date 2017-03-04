@@ -4,10 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.bbdaiya.capstoneproject.ArticleList;
@@ -21,7 +23,7 @@ import java.util.List;
  * Created by bbdaiya on 21-Feb-17.
  */
 
-public class NewsSourceCardAdapter extends RecyclerView.Adapter<NewsSourceCardAdapter.MyViewHolder> implements View.OnClickListener{
+public class NewsSourceCardAdapter extends RecyclerView.Adapter<NewsSourceCardAdapter.MyViewHolder> {
     private Context mContext;
     private List<NewsSource> list;
     public NewsSourceCardAdapter(Context mContext, List<NewsSource> list) {
@@ -37,10 +39,19 @@ public class NewsSourceCardAdapter extends RecyclerView.Adapter<NewsSourceCardAd
     }
 
     @Override
-    public void onBindViewHolder(MyViewHolder holder, int position) {
-        holder.cardView.setOnClickListener(this);
+    public void onBindViewHolder(MyViewHolder holder, final int position) {
+
         holder.news_source.setText(list.get(position).getName());
         Picasso.with(mContext).load(list.get(position).getLogo_url()).into(holder.logo);
+        holder.cardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.v(NewsSourceCardAdapter.class.getSimpleName(), "clicked");
+                Intent intent = new Intent(v.getContext(), ArticleList.class);
+                intent.putExtra("ID", list.get(position).getId());
+                v.getContext().startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -49,20 +60,18 @@ public class NewsSourceCardAdapter extends RecyclerView.Adapter<NewsSourceCardAd
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder{
-        public CardView cardView;
         public TextView news_source;
         public ImageView logo;
+        public CardView cardView;
+         public LinearLayout layout;
         public MyViewHolder(View itemView) {
             super(itemView);
-            cardView = (CardView)itemView.findViewById(R.id.card_view);
+            layout = (LinearLayout) itemView.findViewById(R.id.lin_layout);
             news_source = (TextView)itemView.findViewById(R.id.news_source);
             logo = (ImageView)itemView.findViewById(R.id.news_source_logo);
-
+            cardView = (CardView)itemView.findViewById(R.id.card_view);
         }
+
     }
-    @Override
-    public void onClick(View v) {
-        Intent intent = new Intent(v.getContext(), ArticleList.class);
-        v.getContext().startActivity(intent);
-    }
+
 }

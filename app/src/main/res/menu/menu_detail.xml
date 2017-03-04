@@ -1,20 +1,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.example.bbdaiya.capstoneproject.ArticleList">
+    tools:context="com.example.bbdaiya.capstoneproject.DetailActivity">
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:title="@string/action_settings"
         app:showAsAction="never" />
-    <item
-        android:id="@+id/top"
-        android:title="@string/top"
-        />
-    <item
-        android:id="@+id/latest"
-        android:title="@string/latest"/>
-    <item
-        android:id="@+id/popular"
-        android:title="@string/popular"/>
 </menu>

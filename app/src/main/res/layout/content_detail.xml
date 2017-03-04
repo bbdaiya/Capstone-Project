@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.example.bbdaiya.capstoneproject.DetailActivity"
+    tools:showIn="@layout/activity_detail">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_marginLeft="@dimen/text_left_margin">
+        <TextView
+            android:id="@+id/article_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/text_margin"
+            android:text="Title"
+            android:layout_marginTop="4dp"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+            android:fontFamily="sans-serif-condensed"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            android:textSize="@dimen/detail_title_text_size"
+            android:lineSpacingMultiplier="0.9"/>
+        <TextView
+            android:id="@+id/article_author"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/text_margin"
+            android:text="Author"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
+            android:fontFamily="sans-serif"
+           />
+        <TextView
+            android:id="@+id/article_publishedAt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/text_margin"
+            android:text="PublishedAt"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
+            android:fontFamily="sans-serif"
+            />
+
+        <TextView
+            android:id="@+id/article_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/text_margin"
+            android:text="Description"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/detail_body_text_size"
+            android:lineSpacingMultiplier="@fraction/detail_body_line_spacing_multiplier"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/read_more"
+            android:text="@string/read_more"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
+            android:textColor="@android:color/holo_blue_bright"
+            android:layout_margin="@dimen/text_margin"
+            />
+
+    </LinearLayout>
+
+
+</android.support.v4.widget.NestedScrollView>

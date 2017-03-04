@@ -48,7 +48,41 @@ public class Utils{
             JSONObject logo = eachObject.getJSONObject(URLSTOLOGO);
             newsSource.setLogo_url(logo.getString(SMALL));
             newsSourcesList.add(newsSource);
+
         }
         return newsSourcesList;
+    }
+
+    public static ArrayList<Article> getArticleData(String articlejson) throws JSONException{
+        final String SOURCE = "source";
+        final String ARTICLES = "articles";
+        final String AUTHOR = "author";
+        final String TITLE = "title";
+        final String DESCRIPTION = "description";
+        final String URL = "url";
+        final String URLTOIMAGE = "urlToImage";
+        final String PUBLISHEDAT = "publishedAt";
+
+        JSONObject list = new JSONObject(articlejson);
+        String source = list.getString(SOURCE);
+        JSONArray resultArr = list.getJSONArray(ARTICLES);
+
+        ArrayList<Article> articleList = new ArrayList<>();
+        for(int i = 0; i < resultArr.length(); i++){
+            JSONObject eachObject = resultArr.getJSONObject(i);
+            Article article= new Article(
+                    source,
+                    eachObject.getString(AUTHOR),
+                    eachObject.getString(TITLE),
+                    eachObject.getString(DESCRIPTION),
+                    eachObject.getString(URL),
+                    eachObject.getString(URLTOIMAGE),
+                    eachObject.getString(PUBLISHEDAT)
+            );
+
+            articleList.add(article);
+            Log.v(Utils.class.getSimpleName(), article.getTitle());
+        }
+        return articleList;
     }
 }

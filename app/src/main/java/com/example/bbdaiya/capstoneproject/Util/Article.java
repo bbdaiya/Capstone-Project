@@ -1,28 +1,53 @@
 package com.example.bbdaiya.capstoneproject.Util;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by bbdaiya on 28-Feb-17.
  */
 
-public class Article {
+public class Article implements Parcelable{
+    private String source;
     private String author;
     private String title;
-    private String discription;
+    private String description;
     private String url;
     private String urlToImage;
     private String publishedAt;
 
-    public Article(String author, String title, String discription, String url, String urlToImage, String publishedAt) {
+    public Article(String source, String author, String title, String description, String url, String urlToImage, String publishedAt) {
+        this.source = source;
         this.author = author;
         this.title = title;
-        this.discription = discription;
+        this.description = description;
         this.url = url;
         this.urlToImage = urlToImage;
         this.publishedAt = publishedAt;
     }
+    public Article(Parcel in){
+        String[] data = new String[7];
 
+        in.readStringArray(data);
+        this.source = data[0];
+        this.author = data[1];
+        this.title = data[2];
+        this.description = data[3];
+        this.url = data[4];
+        this.urlToImage = data[5];
+        this.publishedAt = data[6];
+
+    }
     public String getAuthor() {
         return author;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
     }
 
     public void setAuthor(String author) {
@@ -37,12 +62,12 @@ public class Article {
         this.title = title;
     }
 
-    public String getDiscription() {
-        return discription;
+    public String getDescription() {
+        return description;
     }
 
-    public void setDiscription(String discription) {
-        this.discription = discription;
+    public void setDescription(String discription) {
+        this.description = discription;
     }
 
     public String getUrl() {
@@ -68,4 +93,26 @@ public class Article {
     public void setPublishedAt(String publishedAt) {
         this.publishedAt = publishedAt;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeStringArray(new String[]{
+                this.source,this.author,this.title,this.description, this.url
+                ,this.urlToImage, this.publishedAt
+        });
+    }
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public Article createFromParcel(Parcel in) {
+            return new Article(in);
+        }
+
+        public Article[] newArray(int size) {
+            return new Article[size];
+        }
+    };
 }

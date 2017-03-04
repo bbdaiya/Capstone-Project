@@ -2,6 +2,7 @@ package com.example.bbdaiya.capstoneproject.UI;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.bbdaiya.capstoneproject.ArticleList;
+import com.example.bbdaiya.capstoneproject.DetailActivity;
 import com.example.bbdaiya.capstoneproject.R;
 import com.example.bbdaiya.capstoneproject.Util.Article;
 import com.example.bbdaiya.capstoneproject.Util.NewsSource;
@@ -37,10 +39,17 @@ public class ArticleListCardAdapter extends RecyclerView.Adapter<ArticleListCard
     }
 
     @Override
-    public void onBindViewHolder(MyViewHolder holder, int position) {
+    public void onBindViewHolder(MyViewHolder holder, final int position) {
         holder.title.setText(list.get(position).getTitle());
         Picasso.with(mContext).load(list.get(position).getUrlToImage()).into(holder.image);
-
+        holder.cardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext, DetailActivity.class);
+                intent.putExtra("article", list.get(position));
+                v.getContext().startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -49,12 +58,14 @@ public class ArticleListCardAdapter extends RecyclerView.Adapter<ArticleListCard
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder{
+        public CardView cardView;
         public TextView title;
         public ImageView image;
         public MyViewHolder(View itemView) {
             super(itemView);
-            title = (TextView)itemView.findViewById(R.id.news_source);
-            image = (ImageView)itemView.findViewById(R.id.news_source_logo);
+            cardView = (CardView)itemView.findViewById(R.id.article_list_card_view);
+            title = (TextView)itemView.findViewById(R.id.article_title);
+            image = (ImageView)itemView.findViewById(R.id.article_image);
 
         }
 
