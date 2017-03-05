@@ -14,7 +14,4 @@
     <item
         android:id="@+id/latest"
         android:title="@string/latest"/>
-    <item
-        android:id="@+id/popular"
-        android:title="@string/popular"/>
 </menu>

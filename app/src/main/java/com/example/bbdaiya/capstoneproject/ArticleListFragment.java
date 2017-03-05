@@ -68,6 +68,7 @@ public class ArticleListFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu_article_list, menu);
+
     }
     public void getArticleList(String sortOrder){
         fetchArticleList.execute(sortOrder);
@@ -80,9 +81,6 @@ public class ArticleListFragment extends Fragment {
                 break;
             case R.id.latest:
                 sortOrder = "latest";
-                break;
-            case R.id.popular:
-                sortOrder = "popular";
                 break;
             default:
                 sortOrder = "top";

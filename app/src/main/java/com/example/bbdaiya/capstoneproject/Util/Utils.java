@@ -62,9 +62,11 @@ public class Utils{
         final String URL = "url";
         final String URLTOIMAGE = "urlToImage";
         final String PUBLISHEDAT = "publishedAt";
+        final String SORTBY = "sortBy";
 
         JSONObject list = new JSONObject(articlejson);
         String source = list.getString(SOURCE);
+        String sortBy = list.getString(SORTBY);
         JSONArray resultArr = list.getJSONArray(ARTICLES);
 
         ArrayList<Article> articleList = new ArrayList<>();
@@ -77,7 +79,8 @@ public class Utils{
                     eachObject.getString(DESCRIPTION),
                     eachObject.getString(URL),
                     eachObject.getString(URLTOIMAGE),
-                    eachObject.getString(PUBLISHEDAT)
+                    eachObject.getString(PUBLISHEDAT),
+                    sortBy
             );
 
             articleList.add(article);
