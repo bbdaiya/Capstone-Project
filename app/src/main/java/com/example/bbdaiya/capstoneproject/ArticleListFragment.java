@@ -1,10 +1,14 @@
 package com.example.bbdaiya.capstoneproject;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,11 +20,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.bbdaiya.capstoneproject.UI.ArticleListCardAdapter;
-import com.example.bbdaiya.capstoneproject.UI.NewsSourceCardAdapter;
+import com.example.bbdaiya.capstoneproject.UI.ArticleListAdapter;
 import com.example.bbdaiya.capstoneproject.Util.Article;
-import com.example.bbdaiya.capstoneproject.Util.NewsSource;
 import com.example.bbdaiya.capstoneproject.Util.Utils;
+import com.example.bbdaiya.capstoneproject.data.NewsContract;
 
 import org.json.JSONException;
 
@@ -32,16 +35,15 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.StringTokenizer;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class ArticleListFragment extends Fragment {
-
+public class ArticleListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+    public final int LOADER_ID = 2;
     private RecyclerView recyclerView;
-    private ArticleListCardAdapter adapter;
-    private String id;
+    private ArticleListAdapter adapter;
+    String source_id;
     public String sortOrder = "top";
     FetchArticleList fetchArticleList;
     public ArticleListFragment() {
@@ -52,14 +54,17 @@ public class ArticleListFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootview =  inflater.inflate(R.layout.fragment_article_list, container, false);
         recyclerView = (RecyclerView) rootview.findViewById(R.id.recycler_view_article_list);
+        adapter = new ArticleListAdapter(getContext());
 
 
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 1);
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        String id = getActivity().getIntent().getExtras().getString("ID");
-        fetchArticleList = new FetchArticleList(getContext(), id);
-        getArticleList(sortOrder);
+        source_id= getActivity().getIntent().getExtras().getString("ID");
+        recyclerView.setAdapter(adapter);
+        fetchArticleList = new FetchArticleList(getContext(), source_id);
+        fetchArticleList.execute(sortOrder);
+        getLoaderManager().initLoader(LOADER_ID, null, this);
         return rootview;
 
     }
@@ -70,9 +75,7 @@ public class ArticleListFragment extends Fragment {
         inflater.inflate(R.menu.menu_article_list, menu);
 
     }
-    public void getArticleList(String sortOrder){
-        fetchArticleList.execute(sortOrder);
-    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()){
@@ -85,8 +88,36 @@ public class ArticleListFragment extends Fragment {
             default:
                 sortOrder = "top";
         }
-        getArticleList(sortOrder);
+
+        getLoaderManager().restartLoader(LOADER_ID, null, this);
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Uri uri = NewsContract.ArticlesEntry.buildArticleUriCategory(source_id, sortOrder);
+        Log.v(ArticleListFragment.class.getSimpleName(), uri.toString());
+        CursorLoader cursorLoader = new CursorLoader(this.getActivity(),
+                uri,
+                null,
+                null,
+                null,
+                null);
+
+        return cursorLoader;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        Log.v(ArticleListFragment.class.getSimpleName(), String.valueOf(data.getCount()));
+        if(data!=null) {
+            adapter.setCursor(data);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        adapter.setCursor(null);
     }
 
     /*
@@ -98,10 +129,10 @@ public class ArticleListFragment extends Fragment {
              */
     public class FetchArticleList extends AsyncTask<String, Void, ArrayList<Article>> {
         final String LOG = FetchArticleList.class.getSimpleName();
-        private ArticleListCardAdapter adapter;
+        private ArticleListAdapter adapter;
         private Context mContext;
         private String id;
-
+        Utils utils = new Utils(getContext());
         public FetchArticleList(Context mContext, String id) {
             this.mContext = mContext;
             this.id = id;
@@ -166,21 +197,13 @@ public class ArticleListFragment extends Fragment {
                 }
             }
             try {
-                return Utils.getArticleData(articlejson);
+                return utils.getArticleData(articlejson);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
             return null;
         }
 
-
-        @Override
-        protected void onPostExecute(ArrayList<Article> articleList) {
-            Log.v(LOG, articleList.get(0).getTitle());
-            adapter = new ArticleListCardAdapter(getContext(), articleList);
-            recyclerView.setAdapter(adapter);
-            super.onPostExecute(articleList);
-        }
     }
 
 

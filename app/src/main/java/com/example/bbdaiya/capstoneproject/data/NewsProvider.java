@@ -38,6 +38,7 @@ public class NewsProvider extends ContentProvider {
     static final int SOURCES = 100;
     static final int ARTICLES = 101;
     static final int SOURCES_LOCATION = 102;
+    static final int ARTICLES_CATEGORY = 103;
 
 
     static UriMatcher buildUriMatcher() {
@@ -45,8 +46,9 @@ public class NewsProvider extends ContentProvider {
         UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
         sUriMatcher.addURI(NewsContract.CONTENT_AUTHORITY, NewsContract.PATH_SOURCES, SOURCES);
-        sUriMatcher.addURI(NewsContract.CONTENT_AUTHORITY, NewsContract.PATH_SOURCES, SOURCES_LOCATION);
+        sUriMatcher.addURI(NewsContract.CONTENT_AUTHORITY, NewsContract.PATH_SOURCES+"/*", SOURCES_LOCATION);        sUriMatcher.addURI(NewsContract.CONTENT_AUTHORITY, NewsContract.PATH_ARTICLES+"/*/*", ARTICLES_CATEGORY);
         sUriMatcher.addURI(NewsContract.CONTENT_AUTHORITY, NewsContract.PATH_ARTICLES, ARTICLES);
+        sUriMatcher.addURI(NewsContract.CONTENT_AUTHORITY, NewsContract.PATH_ARTICLES+"/*/*", ARTICLES_CATEGORY);
         return sUriMatcher;
 
     }
@@ -69,7 +71,7 @@ public class NewsProvider extends ContentProvider {
                         selection, selectionArgs, null, null, sortOrder);
                 break;
             }
-            case ARTICLES: {
+            case ARTICLES_CATEGORY: {
                 retCursor = getArticles(uri, projection, sortOrder);
                 break;
             }
@@ -94,6 +96,8 @@ public class NewsProvider extends ContentProvider {
             case SOURCES:
                 return NewsContract.SourceEntry.CONTENT_TYPE;
             case ARTICLES:
+                return NewsContract.ArticlesEntry.CONTENT_TYPE;
+            case ARTICLES_CATEGORY:
                 return NewsContract.ArticlesEntry.CONTENT_TYPE;
             case SOURCES_LOCATION:
                 return NewsContract.SourceEntry.CONTENT_TYPE;
@@ -143,10 +147,10 @@ public class NewsProvider extends ContentProvider {
                 returnRow = db.delete(NewsContract.SourceEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             }
-            case ARTICLES: {
+            case ARTICLES_CATEGORY: {
                 String selection1 = NewsContract.ArticlesEntry.TABLE_NAME + "." + NewsContract.ArticlesEntry.COLUMN_SOURCE
-                        + " = ? AND "+NewsContract.ArticlesEntry.TABLE_NAME + "." + NewsContract.ArticlesEntry.COLUMN_CATEGORY
-                        + " = ?";
+                        + "=? AND "+NewsContract.ArticlesEntry.TABLE_NAME + "." + NewsContract.ArticlesEntry.COLUMN_CATEGORY
+                        + "=?";
                 String source = NewsContract.ArticlesEntry.getSourceFromUri(uri);
                 String sortBy = NewsContract.ArticlesEntry.getCategoryFromUri(uri);
                 String[] selectionArgs1 = new String[]{source, sortBy};
@@ -232,21 +236,26 @@ public class NewsProvider extends ContentProvider {
     public Cursor getArticles(Uri uri, String[] projections, String sortOrder) {
 
         String selection = NewsContract.ArticlesEntry.TABLE_NAME + "." + NewsContract.ArticlesEntry.COLUMN_SOURCE
-                + " = ? AND "+NewsContract.ArticlesEntry.TABLE_NAME + "." + NewsContract.ArticlesEntry.COLUMN_CATEGORY
-                + " = ?";
+                + "=? AND "+NewsContract.ArticlesEntry.TABLE_NAME + "." + NewsContract.ArticlesEntry.COLUMN_CATEGORY
+                + "=?";
         String source = NewsContract.ArticlesEntry.getSourceFromUri(uri);
         String sortBy = NewsContract.ArticlesEntry.getCategoryFromUri(uri);
         String[] selectionArgs = new String[]{source, sortBy};
-        return sourceQueryBuilder.query(newsDbHelper.getReadableDatabase(), projections, selection, selectionArgs, null, null, NewsContract.ArticlesEntry._ID+" DESC ");
+        return articleQueryBuilder.query(newsDbHelper.getReadableDatabase(), projections, selection, selectionArgs, null, null, NewsContract.ArticlesEntry._ID+" DESC ");
     }
     public Cursor getSourcesFromLocation(Uri uri, String[] projections, String sortOrder) {
 
         String selection = NewsContract.SourceEntry.TABLE_NAME + "." + NewsContract.SourceEntry.COLUMN_COUNTRY
-                + " = ?";
+                + "=? ";
         String location = NewsContract.SourceEntry.getLocationFromUri(uri);
-
+        Log.v(NewsProvider.class.getSimpleName(), " Location:"+location);
         String[] selectionArgs = new String[]{location};
-        return sourceQueryBuilder.query(newsDbHelper.getReadableDatabase(), projections, selection, selectionArgs, null, null, NewsContract.ArticlesEntry._ID+" DESC ");
+
+        Cursor cursor =  sourceQueryBuilder.query(newsDbHelper.getReadableDatabase(), projections, selection, selectionArgs, null, null, sortOrder);
+        if(cursor!=null){
+            Log.v(NewsProvider.class.getSimpleName(), String.valueOf(cursor.getCount()));
+        }
+        return cursor;
     }
     @Override
     public void shutdown() {

@@ -1,21 +1,22 @@
 package com.example.bbdaiya.capstoneproject;
 
-import android.*;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,23 +25,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.bbdaiya.capstoneproject.UI.NewsSourceCardAdapter;
-import com.example.bbdaiya.capstoneproject.Util.NewsSource;
-import com.example.bbdaiya.capstoneproject.Util.Utils;
+import com.example.bbdaiya.capstoneproject.UI.NewsSourceAdapter;
+import com.example.bbdaiya.capstoneproject.data.NewsContract;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 
-import org.json.JSONException;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -56,7 +47,7 @@ import static android.content.Context.LOCATION_SERVICE;
  * create an instance of this fragment.
  */
 public class LocalNewsFragment extends Fragment implements
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LoaderManager.LoaderCallbacks<Cursor>{
 
     final String LOG = LocalNewsFragment.class.getSimpleName();
     // TODO: Rename parameter arguments, choose names that match
@@ -64,7 +55,9 @@ public class LocalNewsFragment extends Fragment implements
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private RecyclerView recyclerView;
-    private NewsSourceCardAdapter adapter;
+    private NewsSourceAdapter adapter;
+    public static final int LOADER_ID = 1;
+
     private List<String> list;
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -112,6 +105,7 @@ public class LocalNewsFragment extends Fragment implements
                     .build();
             mGoogleApiClient.connect();
         }
+
         LocationManager service = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE);
         boolean enabled = service
                 .isProviderEnabled(LocationManager.GPS_PROVIDER);
@@ -156,8 +150,7 @@ public class LocalNewsFragment extends Fragment implements
         View rootview = inflater.inflate(R.layout.fragment_local_news, container, false);
         //Recycler View
         recyclerView = (RecyclerView) rootview.findViewById(R.id.recycler_view_country);
-
-
+        adapter = new NewsSourceAdapter(getContext());
 
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 2);
         recyclerView.setLayoutManager(mLayoutManager);
@@ -169,11 +162,12 @@ public class LocalNewsFragment extends Fragment implements
     public void onConnected(@Nullable Bundle bundle) {
         getCountry();
     }
-    public void getCountry(){
+    public String getCountry(){
+        String countryCode = "";
         if (ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
             Log.v(LOG, "null");
-            return;
+            return null;
         }
         try {
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
@@ -186,18 +180,38 @@ public class LocalNewsFragment extends Fragment implements
 
                     if (addresses.size() > 0) {
                         countryName = addresses.get(0).getCountryName();
-                        Log.v(LOG, countryName);
+                        Log.v(LOG, "country"+countryName);
+
+                        if(countryName.equals("Australia")){
+                            countryCode = "au";
+                        }
+                        else if(countryName.equals("Germany")){
+                            countryCode = "de";
+                        }
+                        else if(countryName.equals("United Kingdom")){
+                            countryCode = "gb";
+                        }
+                        else if(countryName.equals("India")){
+                            countryCode = "in";
+                        }
+                        else if(countryName.equals("Italy")){
+                            countryCode = "it";
+                        }
+                        else if(countryName.equals("United States")){
+                            countryCode = "us";
+                        }
+                        Log.v(LOG, "code"+countryCode);
+                        getLoaderManager().initLoader(LOADER_ID, null, this);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                getCountryNewsSources();
             }
         }
         catch (Exception e){
             e.printStackTrace();
         }
-
+        return countryCode;
     }
     @Override
     public void onConnectionSuspended(int i) {
@@ -222,117 +236,119 @@ public class LocalNewsFragment extends Fragment implements
 
     }
 
-    public void getCountryNewsSources(){
-        String countryCode = "";
-        if(countryName.equals("Australia")){
-            countryCode = "au";
-        }
-        else if(countryName.equals("Germany")){
-            countryCode = "de";
-        }
-        else if(countryName.equals("United Kingdom")){
-            countryCode = "gb";
-        }
-        else if(countryName.equals("India")){
-            countryCode = "in";
-        }
-        else if(countryName.equals("Italy")){
-            countryCode = "it";
-        }
-        else if(countryName.equals("United States")){
-            countryCode = "us";
-        }
-        Log.v(LOG, countryCode);
-        FetchCountryNewsSource fetchCountryNewsSource = new FetchCountryNewsSource(getContext());
-        fetchCountryNewsSource.execute(countryCode);
 
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Uri uri = NewsContract.SourceEntry.buildSourceUriLocation(getCountry());
+        Log.v(LOG, uri.toString());
+        CursorLoader cursorLoader = new CursorLoader(this.getActivity(),
+                uri,
+                null,
+                null,
+                null,
+                null);
+        return cursorLoader;
     }
 
-    /*
-    *
-    *
-    * Class for fetching news sources
-    *
-    *
-     */
-    public class FetchCountryNewsSource extends AsyncTask<String, Void, ArrayList<NewsSource>> {
-        final String LOG = LocalNewsFragment.FetchCountryNewsSource.class.getSimpleName();
-        private NewsSourceCardAdapter adapter;
-        private Context mContext;
-
-
-        public FetchCountryNewsSource(Context mContext) {
-            this.mContext = mContext;
-        }
-
-        @Override
-        protected ArrayList<NewsSource> doInBackground(String... params) {
-
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
-            String newssourcejson = null;
-
-            try{
-                final String SOURCE_BASE_URL = "https://newsapi.org/v1/sources?language=en";
-                final String COUNTRY = "country";
-                URL url = null;
-                Uri builtUri = Uri.parse(SOURCE_BASE_URL).buildUpon().appendQueryParameter(COUNTRY, params[0]).build();
-                try{
-                    url = new URL(builtUri.toString());
-                    Log.v(LOG, url.toString());
-                }
-                catch(MalformedURLException e){
-                    e.printStackTrace();
-                }
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-                InputStream is = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                if(is==null){
-                    return null;
-                }
-
-                reader = new BufferedReader(new InputStreamReader(is));
-                String line;
-                while((line=reader.readLine())!=null){
-                    buffer.append(line+"\n");           //for making debugging easy we add newline
-                }
-                if(buffer.length()==0){
-                    //Stream is empty
-                    return null;
-                }
-
-                newssourcejson = buffer.toString();
-            }
-            catch (IOException e){
-                e.printStackTrace();
-            }finally {
-                if(urlConnection!=null){
-                    urlConnection.disconnect();
-                }
-                if(reader!=null){
-                    try {
-                        reader.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            try {
-                return Utils.getSourceData(newssourcejson);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-
-        @Override
-        protected void onPostExecute(ArrayList<NewsSource> newsSources) {
-            adapter = new NewsSourceCardAdapter(getContext(), newsSources);
-            recyclerView.setAdapter(adapter);
-            super.onPostExecute(newsSources);
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if(data!=null) {
+            Log.v(LOG, "data not null");
+            adapter.setCursor(data);
         }
     }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        adapter.setCursor(null);
+    }
+
+//    /*
+//    *
+//    *
+//    * Class for fetching news sources
+//    *
+//    *
+//     */
+//    public class FetchCountryNewsSource extends AsyncTask<String, Void, ArrayList<NewsSource>> {
+//        final String LOG = LocalNewsFragment.FetchCountryNewsSource.class.getSimpleName();
+//        private NewsSourceAdapter adapter;
+//        private Context mContext;
+//
+//
+//        public FetchCountryNewsSource(Context mContext) {
+//            this.mContext = mContext;
+//        }
+//
+//        @Override
+//        protected ArrayList<NewsSource> doInBackground(String... params) {
+//
+//            HttpURLConnection urlConnection = null;
+//            BufferedReader reader = null;
+//            String newssourcejson = null;
+//
+//            try{
+//                final String SOURCE_BASE_URL = "https://newsapi.org/v1/sources?language=en";
+//                final String COUNTRY = "country";
+//                URL url = null;
+//                Uri builtUri = Uri.parse(SOURCE_BASE_URL).buildUpon().appendQueryParameter(COUNTRY, params[0]).build();
+//                try{
+//                    url = new URL(builtUri.toString());
+//                    Log.v(LOG, url.toString());
+//                }
+//                catch(MalformedURLException e){
+//                    e.printStackTrace();
+//                }
+//                urlConnection = (HttpURLConnection) url.openConnection();
+//                urlConnection.setRequestMethod("GET");
+//                urlConnection.connect();
+//                InputStream is = urlConnection.getInputStream();
+//                StringBuffer buffer = new StringBuffer();
+//                if(is==null){
+//                    return null;
+//                }
+//
+//                reader = new BufferedReader(new InputStreamReader(is));
+//                String line;
+//                while((line=reader.readLine())!=null){
+//                    buffer.append(line+"\n");           //for making debugging easy we add newline
+//                }
+//                if(buffer.length()==0){
+//                    //Stream is empty
+//                    return null;
+//                }
+//
+//                newssourcejson = buffer.toString();
+//            }
+//            catch (IOException e){
+//                e.printStackTrace();
+//            }finally {
+//                if(urlConnection!=null){
+//                    urlConnection.disconnect();
+//                }
+//                if(reader!=null){
+//                    try {
+//                        reader.close();
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }
+//            try {
+//                return Utils.getSourceData(newssourcejson);
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//            return null;
+//        }
+//
+//
+//        @Override
+//        protected void onPostExecute(ArrayList<NewsSource> newsSources) {
+//            adapter = new NewsSourceAdapter(getContext(), newsSources);
+//            recyclerView.setAdapter(adapter);
+//            super.onPostExecute(newsSources);
+//        }
+//    }
 }

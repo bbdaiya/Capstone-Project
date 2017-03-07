@@ -4,6 +4,7 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.util.Log;
 
 /**
  * Created by bbdaiya on 05-Mar-17.
@@ -16,6 +17,8 @@ public class NewsContract {
 
     public static final String PATH_SOURCES = "sources";
     public static final String PATH_ARTICLES = "articles";
+
+
     public static final class SourceEntry implements BaseColumns{
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_SOURCES).build();
@@ -35,7 +38,11 @@ public class NewsContract {
         public static Uri buildSourceUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
+        public static Uri buildSourceUriLocation(String country){
+            return CONTENT_URI.buildUpon().appendPath(country).build();
+        }
         public static String getLocationFromUri(Uri uri){
+            Log.v(SourceEntry.class.getSimpleName(), uri.toString());
             return uri.getPathSegments().get(1);
         }
     }
@@ -68,6 +75,9 @@ public class NewsContract {
         }
         public static Uri buildArticleUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+        public static Uri buildArticleUriCategory(String source, String category){
+            return CONTENT_URI.buildUpon().appendPath(source).appendPath(category).build();
         }
     }
 

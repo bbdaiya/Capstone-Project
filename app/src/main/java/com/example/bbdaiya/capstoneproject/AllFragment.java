@@ -1,10 +1,13 @@
 package com.example.bbdaiya.capstoneproject;
 
 import android.content.Context;
-import android.net.Uri;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,13 +16,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.bbdaiya.capstoneproject.UI.NewsSourceCardAdapter;
+import com.example.bbdaiya.capstoneproject.UI.NewsSourceAdapter;
 import com.example.bbdaiya.capstoneproject.Util.NewsSource;
 import com.example.bbdaiya.capstoneproject.Util.Utils;
+import com.example.bbdaiya.capstoneproject.data.NewsContract;
 
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -40,14 +42,15 @@ import java.util.List;
  * Use the {@link AllFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class AllFragment extends Fragment {
+public class AllFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private RecyclerView recyclerView;
-    private NewsSourceCardAdapter adapter;
+    private NewsSourceAdapter adapter;
     private List<String> list;
+    public static final int LOADER_ID = 1;
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
@@ -82,7 +85,7 @@ public class AllFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
+        getLoaderManager().initLoader(LOADER_ID, null, this);
     }
 
     @Override
@@ -94,12 +97,14 @@ public class AllFragment extends Fragment {
         //Recycler View
         recyclerView = (RecyclerView) rootview.findViewById(R.id.recycler_view_all);
         ArrayList<NewsSource> newsSources = new ArrayList<>();
+        adapter = new NewsSourceAdapter(getContext());
 
         FetchNewsSource fetchNewsSource = new FetchNewsSource(getContext());
         fetchNewsSource.execute();
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 2);
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(adapter);
         return rootview;
     }
 
@@ -116,6 +121,30 @@ public class AllFragment extends Fragment {
         super.onDetach();
     }
 
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        CursorLoader cursorLoader = new CursorLoader(this.getActivity(),
+                NewsContract.SourceEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                null);
+        return cursorLoader;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        Log.v(AllFragment.class.getSimpleName(), String.valueOf(data.getCount()));
+        if(data!=null) {
+            adapter.setCursor(data);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        adapter.setCursor(null);
+    }
+
     /*
     *
     *
@@ -125,9 +154,9 @@ public class AllFragment extends Fragment {
      */
     public class FetchNewsSource extends AsyncTask<Void, Void, ArrayList<NewsSource>> {
         final String LOG = FetchNewsSource.class.getSimpleName();
-        private NewsSourceCardAdapter adapter;
+        private NewsSourceAdapter adapter;
         private Context mContext;
-
+        Utils utils = new Utils(getContext());
 
         public FetchNewsSource(Context mContext) {
             this.mContext = mContext;
@@ -186,7 +215,7 @@ public class AllFragment extends Fragment {
                 }
             }
             try {
-                return Utils.getSourceData(newssourcejson);
+                return utils.getSourceData(newssourcejson);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -196,8 +225,7 @@ public class AllFragment extends Fragment {
 
         @Override
         protected void onPostExecute(ArrayList<NewsSource> newsSources) {
-            adapter = new NewsSourceCardAdapter(getContext(), newsSources);
-            recyclerView.setAdapter(adapter);
+
             super.onPostExecute(newsSources);
         }
     }

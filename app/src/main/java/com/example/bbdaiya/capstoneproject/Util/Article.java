@@ -113,7 +113,7 @@ public class Article implements Parcelable{
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeStringArray(new String[]{
                 this.source,this.author,this.title,this.description, this.url
-                ,this.urlToImage, this.publishedAt
+                ,this.urlToImage, this.publishedAt, this.category
         });
     }
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
