@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
@@ -91,6 +92,10 @@ public class ArticleListFragment extends Fragment implements LoaderManager.Loade
                 break;
             case R.id.latest:
                 sortOrder = "latest";
+                break;
+            case R.id.action_settings:
+                Intent intent = new Intent(getActivity(),SettingsActivity.class);
+                startActivity(intent);
                 break;
             default:
                 sortOrder = "top";

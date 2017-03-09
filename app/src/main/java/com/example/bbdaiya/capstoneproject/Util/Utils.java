@@ -21,7 +21,8 @@ import java.util.Vector;
 
 public class Utils{
     public static Context context;
-
+    public static CharSequence entries[];
+    public static CharSequence entriesValues[];
     public Utils(Context context) {
         this.context = context;
     }
@@ -58,6 +59,12 @@ public class Utils{
             cVVector.add(contentValues);
             newsSourcesList.add(newsSource);
 
+        }
+        entries = new CharSequence[newsSourcesList.size()];
+        entriesValues = new CharSequence[newsSourcesList.size()];
+        for(int i = 0; i < entries.length; i++){
+            entries[i] = newsSourcesList.get(i).getName();
+            entriesValues[i] = newsSourcesList.get(i).getId();
         }
         if(cVVector.size()>0){
 
