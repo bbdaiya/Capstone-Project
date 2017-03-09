@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.example.bbdaiya.capstoneproject.Util.Utils;
 import com.google.android.gms.ads.AdRequest;
@@ -48,6 +49,7 @@ public class MainActivity extends AppCompatActivity  {
                 .build();
         mAdView.loadAd(adRequest);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        Toast.makeText(getApplicationContext(), R.string.newsapi, Toast.LENGTH_SHORT).show();
         if(!Utils.isTablet(getApplicationContext())) {
             viewPager = (ViewPager) findViewById(R.id.viewpager);
             setupViewPager(viewPager);

@@ -19,7 +19,6 @@ public class NewsAppWidget extends AppWidgetProvider {
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
 
-        CharSequence widgetText = context.getString(R.string.appwidget_text);
         // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.news_app_widget);
         views.setRemoteAdapter(R.id.widget_list_view, new Intent(context, NewsWidgetService.class));

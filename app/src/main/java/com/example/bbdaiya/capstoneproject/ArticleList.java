@@ -22,11 +22,7 @@ public class ArticleList extends AppCompatActivity {
 
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_article_list, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
+
 
 
 

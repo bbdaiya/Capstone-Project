@@ -11,6 +11,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -21,6 +22,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.bbdaiya.capstoneproject.UI.ArticleListAdapter;
 import com.example.bbdaiya.capstoneproject.Util.Article;
@@ -109,6 +111,13 @@ public class ArticleListFragment extends Fragment implements LoaderManager.Loade
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Uri uri = NewsContract.ArticlesEntry.buildArticleUriCategory(source_id, sortOrder);
         Log.v(ArticleListFragment.class.getSimpleName(), uri.toString());
+        if(sortOrder.equals("top")){
+            Toast.makeText(getActivity(), R.string.showing_top, Toast.LENGTH_SHORT).show();
+        }
+        else if (sortOrder.equals("latest")){
+            Toast.makeText(getActivity(), R.string.showing_latest, Toast.LENGTH_SHORT).show();
+
+        }
         CursorLoader cursorLoader = new CursorLoader(this.getActivity(),
                 uri,
                 null,
@@ -120,8 +129,19 @@ public class ArticleListFragment extends Fragment implements LoaderManager.Loade
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         Log.v(ArticleListFragment.class.getSimpleName(), String.valueOf(data.getCount()));
+        if(data.getCount()==0){
+            Toast.makeText(getActivity(), R.string.no_latest, Toast.LENGTH_SHORT).show();
+            sortOrder = "top";
+            getLoaderManager().restartLoader(LOADER_ID, null, this);
+        }
         if(data!=null) {
             adapter.setCursor(data);
         }
