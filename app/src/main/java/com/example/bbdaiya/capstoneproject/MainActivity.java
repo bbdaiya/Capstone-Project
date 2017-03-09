@@ -2,6 +2,7 @@ package com.example.bbdaiya.capstoneproject;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.provider.Settings;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -15,6 +16,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.bbdaiya.capstoneproject.Util.Utils;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +36,17 @@ public class MainActivity extends AppCompatActivity  {
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        AdView mAdView = (AdView) findViewById(R.id.admob_adview);
+        // Create an ad request. Check logcat output for the hashed device ID to
+        // get test ads on a physical device. e.g.
+        // "Use AdRequest.Builder.addTestDevice("ABCDEF012345") to get test ads on this device."
+        String android_id = Settings.Secure.getString(getContentResolver(),
+                Settings.Secure.ANDROID_ID);
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice(android_id)
+                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+                .build();
+        mAdView.loadAd(adRequest);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         if(!Utils.isTablet(getApplicationContext())) {
             viewPager = (ViewPager) findViewById(R.id.viewpager);

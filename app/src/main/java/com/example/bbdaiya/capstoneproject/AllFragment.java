@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -20,6 +21,8 @@ import com.example.bbdaiya.capstoneproject.UI.NewsSourceAdapter;
 import com.example.bbdaiya.capstoneproject.Util.NewsSource;
 import com.example.bbdaiya.capstoneproject.Util.Utils;
 import com.example.bbdaiya.capstoneproject.data.NewsContract;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 import org.json.JSONException;
 
@@ -99,6 +102,8 @@ public class AllFragment extends Fragment implements LoaderManager.LoaderCallbac
         ArrayList<NewsSource> newsSources = new ArrayList<>();
         adapter = new NewsSourceAdapter(getContext());
 
+
+
         FetchNewsSource fetchNewsSource = new FetchNewsSource(getContext());
         fetchNewsSource.execute();
         RecyclerView.LayoutManager mLayoutManager;
@@ -111,6 +116,7 @@ public class AllFragment extends Fragment implements LoaderManager.LoaderCallbac
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(adapter);
+
         return rootview;
     }
 
