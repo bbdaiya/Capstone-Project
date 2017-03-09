@@ -1,8 +1,14 @@
 package com.example.bbdaiya.capstoneproject.UI;
 
+import android.app.Activity;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Bundle;
+
+
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -14,7 +20,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.bbdaiya.capstoneproject.ArticleList;
+import com.example.bbdaiya.capstoneproject.ArticleListFragment;
 import com.example.bbdaiya.capstoneproject.R;
+import com.example.bbdaiya.capstoneproject.Util.Utils;
 import com.example.bbdaiya.capstoneproject.data.NewsContract;
 import com.squareup.picasso.Picasso;
 
@@ -58,9 +66,21 @@ public class NewsSourceAdapter extends RecyclerView.Adapter<NewsSourceAdapter.My
             public void onClick(View v) {
                 Log.v(NewsSourceAdapter.class.getSimpleName(), "clicked");
                 cursor.moveToPosition(position);
-                Intent intent = new Intent(v.getContext(), ArticleList.class);
-                intent.putExtra("ID", cursor.getString(cursor.getColumnIndex(NewsContract.SourceEntry.COLUMN_SOURCE_ID)));
-                v.getContext().startActivity(intent);
+                if(!Utils.isTablet(mContext)) {
+                    Intent intent = new Intent(v.getContext(), ArticleList.class);
+                    intent.putExtra("ID", cursor.getString(cursor.getColumnIndex(NewsContract.SourceEntry.COLUMN_SOURCE_ID)));
+                    v.getContext().startActivity(intent);
+                }
+                else{
+                    Bundle bundle = new Bundle();
+                    bundle.putString("ID", cursor.getString(cursor.getColumnIndex(NewsContract.SourceEntry.COLUMN_SOURCE_ID)));
+                    FragmentManager fragmentManager = ((Activity)mContext).getFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    ArticleListFragment fragment = new ArticleListFragment();
+                    fragment.setArguments(bundle);
+                    fragmentTransaction.add(R.id.fragment1,fragment).commit();
+
+                }
             }
         });
     }

@@ -2,6 +2,7 @@ package com.example.bbdaiya.capstoneproject.Util;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.util.Log;
 
 
@@ -118,4 +119,11 @@ public class Utils{
         }
         return articleList;
     }
+
+    public static boolean isTablet(Context context) {
+        return (context.getResources().getConfiguration().screenLayout
+                & Configuration.SCREENLAYOUT_SIZE_MASK)
+                >= Configuration.SCREENLAYOUT_SIZE_LARGE;
+    }
+
 }

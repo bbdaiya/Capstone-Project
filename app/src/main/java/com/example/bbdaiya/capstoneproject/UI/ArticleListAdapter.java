@@ -1,8 +1,12 @@
 package com.example.bbdaiya.capstoneproject.UI;
 
+import android.app.Activity;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,9 +15,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.bbdaiya.capstoneproject.ArticleListFragment;
 import com.example.bbdaiya.capstoneproject.DetailActivity;
+import com.example.bbdaiya.capstoneproject.DetailActivityFragment;
 import com.example.bbdaiya.capstoneproject.R;
 import com.example.bbdaiya.capstoneproject.Util.Article;
+import com.example.bbdaiya.capstoneproject.Util.Utils;
 import com.example.bbdaiya.capstoneproject.data.NewsContract;
 import com.squareup.picasso.Picasso;
 
@@ -68,9 +75,20 @@ public class ArticleListAdapter extends RecyclerView.Adapter<ArticleListAdapter.
                         publishedAt,
                         category
                 );
-                Intent intent = new Intent(mContext, DetailActivity.class);
-                intent.putExtra("article", article);
-                v.getContext().startActivity(intent);
+                if(!Utils.isTablet(mContext)) {
+                    Intent intent = new Intent(mContext, DetailActivity.class);
+                    intent.putExtra("article", article);
+                    v.getContext().startActivity(intent);
+                }
+                else{
+                    Bundle bundle = new Bundle();
+                    bundle.putParcelable("article", article);
+                    FragmentManager fragmentManager = ((Activity)mContext).getFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    DetailActivityFragment fragment = new DetailActivityFragment();
+                    fragment.setArguments(bundle);
+                    fragmentTransaction.add(R.id.fragment2,fragment).commit();
+                }
             }
         });
     }

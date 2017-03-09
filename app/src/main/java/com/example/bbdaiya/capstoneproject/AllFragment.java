@@ -101,7 +101,13 @@ public class AllFragment extends Fragment implements LoaderManager.LoaderCallbac
 
         FetchNewsSource fetchNewsSource = new FetchNewsSource(getContext());
         fetchNewsSource.execute();
-        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 2);
+        RecyclerView.LayoutManager mLayoutManager;
+        if(!Utils.isTablet(getContext())){
+            mLayoutManager= new GridLayoutManager(getActivity(), 2);
+        }
+        else{
+            mLayoutManager = new GridLayoutManager(getActivity(), 3);
+        }
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(adapter);

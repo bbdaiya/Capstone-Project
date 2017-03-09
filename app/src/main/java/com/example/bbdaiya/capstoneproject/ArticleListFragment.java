@@ -1,14 +1,15 @@
 package com.example.bbdaiya.capstoneproject;
 
+
+import android.app.Fragment;
+import android.app.LoaderManager;
 import android.content.Context;
+import android.content.CursorLoader;
+import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -46,23 +47,29 @@ public class ArticleListFragment extends Fragment implements LoaderManager.Loade
     String source_id;
     public String sortOrder = "top";
     FetchArticleList fetchArticleList;
-    public ArticleListFragment() {
-    }
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootview =  inflater.inflate(R.layout.fragment_article_list, container, false);
         recyclerView = (RecyclerView) rootview.findViewById(R.id.recycler_view_article_list);
-        adapter = new ArticleListAdapter(getContext());
+        adapter = new ArticleListAdapter(getActivity());
 
 
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 1);
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        source_id= getActivity().getIntent().getExtras().getString("ID");
+        if(!Utils.isTablet(getActivity())) {
+            source_id = getActivity().getIntent().getExtras().getString("ID");
+        }
+        else{
+            Bundle bundle = getArguments();
+            source_id = bundle.getString("ID");
+        }
         recyclerView.setAdapter(adapter);
-        fetchArticleList = new FetchArticleList(getContext(), source_id);
+        fetchArticleList = new FetchArticleList(getActivity(), source_id);
         fetchArticleList.execute(sortOrder);
         getLoaderManager().initLoader(LOADER_ID, null, this);
         return rootview;
