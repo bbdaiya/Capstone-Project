@@ -23,5 +23,8 @@
     <string name="showing_latest">Showing latest articles</string>
     <string name="no_latest">No latest articles available</string>
 
-    <string name="banner_footer">ad_unit_id_here</string>
+    <string name="ad_unit_id">ca-app-pub-1074202767890580/2471232552</string>
+
+    <string name="author">Author</string>
+    <string name="publishedAt">Published At</string>
 </resources>

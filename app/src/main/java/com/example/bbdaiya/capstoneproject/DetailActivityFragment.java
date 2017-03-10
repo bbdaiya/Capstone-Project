@@ -88,9 +88,9 @@ public class DetailActivityFragment extends Fragment {
         }
         final Article article = bundle.getParcelable("article");
         title.setText(article.getTitle());
-        author.setText("Author:"+article.getAuthor());
+        author.setText(R.string.author+" : "+article.getAuthor());
 
-        publishedAt.setText("PublishedAt:"+article.getPublishedAt());
+        publishedAt.setText(R.string.publishedAt+" : "+article.getPublishedAt());
         description.setText(article.getDescription());
         String urlToImage = article.getUrlToImage();
         article_photo = (ImageView)rootview.findViewById(R.id.article_detail_photo);

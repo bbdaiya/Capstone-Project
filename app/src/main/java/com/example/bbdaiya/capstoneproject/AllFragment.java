@@ -42,14 +42,13 @@ import java.util.List;
  * Activities that contain this fragment must implement the
  *  interface
  * to handle interaction events.
- * Use the {@link AllFragment#newInstance} factory method to
+ * Use the
  * create an instance of this fragment.
  */
 public class AllFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+
     private RecyclerView recyclerView;
     private NewsSourceAdapter adapter;
     private List<String> list;
@@ -63,31 +62,12 @@ public class AllFragment extends Fragment implements LoaderManager.LoaderCallbac
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment AllFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static AllFragment newInstance(String param1, String param2) {
-        AllFragment fragment = new AllFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+
         getLoaderManager().initLoader(LOADER_ID, null, this);
     }
 
@@ -102,7 +82,17 @@ public class AllFragment extends Fragment implements LoaderManager.LoaderCallbac
         ArrayList<NewsSource> newsSources = new ArrayList<>();
         adapter = new NewsSourceAdapter(getContext());
 
-
+        AdView mAdView = (AdView) rootview.findViewById(R.id.admob_adview);
+        // Create an ad request. Check logcat output for the hashed device ID to
+        // get test ads on a physical device. e.g.
+        // "Use AdRequest.Builder.addTestDevice("ABCDEF012345") to get test ads on this device."
+        String android_id = Settings.Secure.getString(getContext().getContentResolver(),
+                Settings.Secure.ANDROID_ID);
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice(android_id)
+                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+                .build();
+        mAdView.loadAd(adRequest);
 
         FetchNewsSource fetchNewsSource = new FetchNewsSource(getContext());
         fetchNewsSource.execute();

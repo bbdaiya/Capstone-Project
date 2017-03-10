@@ -27,6 +27,8 @@ import android.view.ViewGroup;
 
 import com.example.bbdaiya.capstoneproject.UI.NewsSourceAdapter;
 import com.example.bbdaiya.capstoneproject.data.NewsContract;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -151,7 +153,17 @@ public class LocalNewsFragment extends Fragment implements
         //Recycler View
         recyclerView = (RecyclerView) rootview.findViewById(R.id.recycler_view_country);
         adapter = new NewsSourceAdapter(getContext());
-
+        AdView mAdView = (AdView) rootview.findViewById(R.id.admob_adview);
+        // Create an ad request. Check logcat output for the hashed device ID to
+        // get test ads on a physical device. e.g.
+        // "Use AdRequest.Builder.addTestDevice("ABCDEF012345") to get test ads on this device."
+        String android_id = Settings.Secure.getString(getContext().getContentResolver(),
+                Settings.Secure.ANDROID_ID);
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice(android_id)
+                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+                .build();
+        mAdView.loadAd(adRequest);
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 2);
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
