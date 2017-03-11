@@ -21,7 +21,7 @@ android {
         }
     }
     buildTypes.each {
-        it.buildConfigField 'String', 'API_KEY', "\"api_key\""
+        it.buildConfigField 'String', 'API_KEY', "\"api-key\""
     }
     lintOptions{
         abortOnError false

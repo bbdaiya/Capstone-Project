@@ -1,6 +1,10 @@
 package com.example.bbdaiya.capstoneproject;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -35,6 +39,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 
 
 /**
@@ -93,9 +99,10 @@ public class AllFragment extends Fragment implements LoaderManager.LoaderCallbac
                 .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
                 .build();
         mAdView.loadAd(adRequest);
-
-        FetchNewsSource fetchNewsSource = new FetchNewsSource(getContext());
-        fetchNewsSource.execute();
+        if(Utils.checkConnection(getContext())) {
+            FetchNewsSource fetchNewsSource = new FetchNewsSource(getContext());
+            fetchNewsSource.execute();
+        }
         RecyclerView.LayoutManager mLayoutManager;
         if(!Utils.isTablet(getContext())){
             mLayoutManager= new GridLayoutManager(getActivity(), 2);
@@ -184,6 +191,42 @@ public class AllFragment extends Fragment implements LoaderManager.LoaderCallbac
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
+                if(urlConnection.getResponseCode()==401){
+                    if(Utils.checkConnection(getContext())){
+                        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                                getContext());
+
+                        // set title
+                        alertDialogBuilder.setTitle(getContext().getString(R.string.api_key));
+
+                        // set dialog message
+                        alertDialogBuilder
+                                .setMessage(getContext().getString(R.string.invalid_api_key))
+                                .setCancelable(false)
+                                .setPositiveButton(getContext().getString(R.string.exit),new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,int id) {
+                                        // if this button is clicked, close
+                                        // current activity
+                                        Intent intent = new Intent(getContext(), MainActivity.class);
+                                        intent.addFlags(FLAG_ACTIVITY_CLEAR_TOP);
+                                        getContext().startActivity(intent);
+                                    }
+                                });
+
+                        Activity activity = getActivity();
+                        activity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                // create alert dialog
+                                AlertDialog alertDialog = alertDialogBuilder.create();
+
+                                // show it
+                                alertDialog.show();
+                            }
+                        });
+
+                    }
+                }
                 InputStream is = urlConnection.getInputStream();
                 StringBuffer buffer = new StringBuffer();
                 if(is==null){
@@ -201,6 +244,7 @@ public class AllFragment extends Fragment implements LoaderManager.LoaderCallbac
                 }
 
                 newssourcejson = buffer.toString();
+
             }
             catch (IOException e){
                 e.printStackTrace();

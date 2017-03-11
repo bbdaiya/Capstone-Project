@@ -1,11 +1,19 @@
 package com.example.bbdaiya.capstoneproject.Util;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 
 
+import com.example.bbdaiya.capstoneproject.MainActivity;
+import com.example.bbdaiya.capstoneproject.R;
 import com.example.bbdaiya.capstoneproject.data.NewsContract;
 
 import org.json.JSONArray;
@@ -14,6 +22,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Vector;
+
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 
 /**
  * Created by bbdaiya on 22-Feb-17.
@@ -132,5 +142,13 @@ public class Utils{
                 & Configuration.SCREENLAYOUT_SIZE_MASK)
                 >= Configuration.SCREENLAYOUT_SIZE_LARGE;
     }
+    public static boolean checkConnection(Context context){
+        ConnectivityManager cm =
+                (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+        return isConnected;
+    }
 }

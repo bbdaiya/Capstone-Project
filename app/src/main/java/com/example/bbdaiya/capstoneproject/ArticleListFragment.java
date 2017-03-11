@@ -1,10 +1,13 @@
 package com.example.bbdaiya.capstoneproject;
 
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
@@ -39,6 +42,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -136,12 +141,6 @@ public class ArticleListFragment extends Fragment implements LoaderManager.Loade
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        Log.v(ArticleListFragment.class.getSimpleName(), String.valueOf(data.getCount()));
-        if(data.getCount()==0){
-            Toast.makeText(getActivity(), R.string.no_latest, Toast.LENGTH_SHORT).show();
-            sortOrder = "top";
-            getLoaderManager().restartLoader(LOADER_ID, null, this);
-        }
         if(data!=null) {
             adapter.setCursor(data);
         }
@@ -164,6 +163,7 @@ public class ArticleListFragment extends Fragment implements LoaderManager.Loade
         private ArticleListAdapter adapter;
         private Context mContext;
         private String id;
+        boolean invalidApiKey = false;
         Utils utils = new Utils(getContext());
         public FetchArticleList(Context mContext, String id) {
             this.mContext = mContext;
@@ -196,9 +196,56 @@ public class ArticleListFragment extends Fragment implements LoaderManager.Loade
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
+
+                if(urlConnection.getResponseCode()==401) {
+
+
+
+                                invalidApiKey = true;
+                                if (Utils.checkConnection(getContext())) {
+                                    Log.v(LOG, "checkConnection true");
+                                    final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                                            getContext());
+
+                                    // set title
+                                    alertDialogBuilder.setTitle(getContext().getString(R.string.api_key));
+
+                                    // set dialog message
+                                    alertDialogBuilder
+                                            .setMessage(getContext().getString(R.string.invalid_api_key))
+                                            .setCancelable(false)
+                                            .setPositiveButton(getContext().getString(R.string.exit), new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int id) {
+                                                    // if this button is clicked, close
+                                                    // current activity
+                                                    Intent intent = new Intent(getActivity(), MainActivity.class);
+                                                    intent.addFlags(FLAG_ACTIVITY_CLEAR_TOP);
+                                                    getActivity().startActivity(intent);
+
+                                                }
+                                            });
+
+                                    Activity activity = getActivity();
+                                    activity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            // create alert dialog
+                                            AlertDialog alertDialog = alertDialogBuilder.create();
+
+                                            // show it
+                                            alertDialog.show();
+                                        }
+                                    });
+
+                                }
+
+
+                }
                 InputStream is = urlConnection.getInputStream();
+                Log.v(LOG, is.toString());
                 StringBuffer buffer = new StringBuffer();
                 if(is==null){
+                    Log.v(LOG, "is is null");
                     return null;
                 }
 
@@ -213,8 +260,10 @@ public class ArticleListFragment extends Fragment implements LoaderManager.Loade
                 }
 
                 articlejson = buffer.toString();
+
             }
             catch (IOException e){
+                Log.v(LOG, "IOEXception");
                 e.printStackTrace();
             }finally {
                 if(urlConnection!=null){
@@ -229,7 +278,8 @@ public class ArticleListFragment extends Fragment implements LoaderManager.Loade
                 }
             }
             try {
-                return utils.getArticleData(articlejson);
+                if(!invalidApiKey)
+                    return utils.getArticleData(articlejson);
             } catch (JSONException e) {
                 e.printStackTrace();
             }

@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.bbdaiya.capstoneproject.UI.NewsSourceAdapter;
+import com.example.bbdaiya.capstoneproject.Util.Utils;
 import com.example.bbdaiya.capstoneproject.data.NewsContract;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -107,26 +108,27 @@ public class LocalNewsFragment extends Fragment implements
                     .build();
             mGoogleApiClient.connect();
         }
-
-        LocationManager service = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE);
-        boolean enabled = service
-                .isProviderEnabled(LocationManager.GPS_PROVIDER);
+        if(Utils.checkConnection(getContext())) {
+            LocationManager service = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE);
+            boolean enabled = service
+                    .isProviderEnabled(LocationManager.GPS_PROVIDER);
 
 // check if enabled and if not send user to the GSP settings
 // Better solution would be to display a dialog and suggesting to
 // go to the settings
-        if (!enabled) {
-            Log.v(LOG, "location");
-            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-            startActivityForResult(intent, 1);
-        }
-        if (ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (!enabled) {
+                Log.v(LOG, "location");
+                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivityForResult(intent, 1);
+            }
+            if (ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},
-                    200);
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},
+                        200);
 
 
+            }
         }
     }
 

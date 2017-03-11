@@ -27,4 +27,10 @@
 
     <string name="author">Author</string>
     <string name="publishedAt">Published At</string>
+    <string name="connectivity">Connectivity</string>
+    <string name="no_internet">No Internet connectivity!!</string>
+    <string name="exit">Exit</string>
+
+    <string name="api_key">API_KEY</string>
+    <string name="invalid_api_key">Invalid Api Key</string>
 </resources>

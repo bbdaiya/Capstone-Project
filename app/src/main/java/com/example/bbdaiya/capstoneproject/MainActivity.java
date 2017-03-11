@@ -1,6 +1,8 @@
 package com.example.bbdaiya.capstoneproject;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.provider.Settings;
 import android.support.design.widget.TabLayout;
@@ -12,6 +14,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -31,13 +34,41 @@ public class MainActivity extends AppCompatActivity  {
 
     final String LOG = MainActivity.class.getSimpleName();
     public String countryName;
-
+    AlertDialog alertDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        Log.v(LOG, String.valueOf(Utils.checkConnection(MainActivity.this)));
+        if(!Utils.checkConnection(MainActivity.this)){
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                    MainActivity.this);
+
+            // set title
+            alertDialogBuilder.setTitle(getString(R.string.connectivity));
+
+            // set dialog message
+            alertDialogBuilder
+                    .setMessage(getString(R.string.no_internet))
+                    .setCancelable(false)
+                    .setPositiveButton(getString(R.string.exit),new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog,int id) {
+                            // if this button is clicked, close
+                            // current activity
+                            MainActivity.this.finish();
+                        }
+                    });
+
+
+            // create alert dialog
+            alertDialog = alertDialogBuilder.create();
+
+            // show it
+            alertDialog.show();
+        }
+
         MobileAds.initialize(getApplicationContext(), getString(R.string.ad_unit_id));
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
@@ -58,6 +89,14 @@ public class MainActivity extends AppCompatActivity  {
 
 
 
+    }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (alertDialog != null) {
+            alertDialog.dismiss();
+            alertDialog = null;
+        }
     }
 
     @Override
